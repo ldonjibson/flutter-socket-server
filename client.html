@@ -1,0 +1,67 @@
+<html>
+  <head>
+    <!-- <script src="https://cdn.socket.io/4.0.1/socket.io.js"></script> -->
+    <script src="https://cdn.socket.io/socket.io-2.3.0.js"></script>
+
+  </head>
+  <body>
+
+    <form>
+      <input id="chat" />
+      <button type="submit" id="send_message">send message</button>
+      <button type="submit" id="send_message_general">send_message_general</button>
+
+      
+    </form>
+    
+    
+    <script>
+      const socket = io("http://localhost:5000/", {
+		"transports": ["websocket"],
+		"autoConnect": false,
+	  });
+      //const socket = io("https://dondy.pagekite.me/", {
+		//"transports": ["polling","websocket"],
+		//"autoConnect": false,
+	  //});
+	  socket.connect();
+
+      console.log(socket)
+      socket.on("connect", data => {
+         console.log("Connected")
+      })
+
+      document.getElementById("send_message").addEventListener('click', function(e){
+        e.preventDefault();
+        let value = document.getElementById("chat").value
+
+        socket.emit("/test", { recipient_id: "1", sender_id: "16",  text: value, token: "from client" }, (res) => {
+          console.log("||res>>>", res);
+        });
+		
+		socket.once("jest", data=>{
+          console.log(data, "--->")
+        })
+
+        socket.on("get_messages_22f9b48a-653a-4d7f-90b1-c10faeb5ebe1", data=>{
+          console.log(data)
+        })
+      })
+
+      document.getElementById("send_message_general").addEventListener('click', function(e){
+        e.preventDefault();
+        let value = document.getElementById("chat").value
+        console.log(value);
+
+        socket.emit("general_conversation", { recipient_id: "1", sender_id: "32", text: value, token: adebayo, room_id: "1", community_id: "1"}, (res) => {
+          console.log("||res>>>", res);
+        });
+
+        socket.on("general", data => {
+          console.log(data)
+        })
+      })
+
+    </script>
+  </body>
+</html>
