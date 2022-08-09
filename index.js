@@ -2,7 +2,8 @@ const express = require("express");
 var http = require("http");
 const app = express();
 var cors = require('cors')
-const port = process.env.PORT || 5000;
+var ApiCalls = require('./apicall')
+const port = process.env.PORT || 3000;
 var server = http.createServer(app);
 var io = require("socket.io")(server, {
 	cors: {
@@ -22,7 +23,64 @@ io.on("connection", (socket) => {
 	console.log("connected");
 	console.log(socket.id, "has joined")
 	
-	
+	socket.emit("connected", {socket: socket.id})
+
+	//on landing of the visitor
+	socket.on("visitor_on_page", async (data) => {
+		console.log(data)
+		let call = new ApiCalls(data.api_token)
+		let res = await call.postApi(`visitor_info/${data.api_token}`, {
+			api_token: data.api_token,
+			room_id: data.room_id
+		})
+		// console.log(res, "re>>>>>")
+
+		//broadcast to all agent under that apitoken and return the visitor's details
+		if (res.status == "success"){
+			io.emit(`visitor_on_page_${data.api_token}`, {
+				details: res.visitor,
+			})
+		}		
+	})
+
+	socket.on("visitor_register", async (data) => {
+		console.log(data)
+		let call = new ApiCalls(data.api_token)
+		let res = await call.postApi(`visitor_info/${data.api_token}`, {
+			api_token: data.api_token,
+			visitor_name: data.visitor_name,
+			visitor_email: data.visitor_email,
+			status: data.status,
+			room_id: data.room_id
+		})
+		// console.log(res, "re>>>>>")
+		if (res.status == "success"){
+			socket.emit(data.room_id, {
+				details: res.visitor,
+			})
+		}
+	})
+
+	//send message to agent ot visitor
+	socket.on("send_message", async (data) => {
+		console.log(data)
+
+		let call = new ApiCalls(data.api_token)
+		let res = await call.postApi(`send_message/${data.api_token}`, {
+			api_token: data.api_token,
+			visitor_id: data.visitor_id || null,
+			agent_id: data.agent_id || null,
+			message: data.message || null,
+			room_id: data.room_id
+		})
+		console.log(res, "re>>>>>")
+		if (res.status == "success"){
+			socket.emit(data.room_id, {
+				details: res.chat,
+			})
+		}
+	})
+		
 	socket.on("/test", (data)=>{
 		console.log(data)
 		socket.emit("jest", {

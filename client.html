@@ -11,12 +11,13 @@
       <button type="submit" id="send_message">send message</button>
       <button type="submit" id="send_message_general">send_message_general</button>
 
-      
+      <button id="submit_visitor">submit visitor</button>
     </form>
     
     
     <script>
-      const socket = io("http://localhost:5000/", {
+      const socket = io("http://localhost:3000/", {
+      //const socket = io("https://fluttsocket.herokuapp.com/", {
 		"transports": ["websocket"],
 		"autoConnect": false,
 	  });
@@ -31,37 +32,54 @@
          console.log("Connected")
       })
 
-      document.getElementById("send_message").addEventListener('click', function(e){
-        e.preventDefault();
-        let value = document.getElementById("chat").value
+    document.getElementById("send_message").addEventListener('click', function(e){
+      e.preventDefault();
+      let value = document.getElementById("chat").value
 
-        socket.emit("/test", { recipient_id: "1", sender_id: "16",  text: value, token: "from client" }, (res) => {
-          console.log("||res>>>", res);
-        });
+    socket.emit("/test", { recipient_id: "1", sender_id: "16",  text: value, token: "from client" }, (res) => {
+      console.log("||res>>>", res);
+    });
 		
 		socket.once("jest", data=>{
-          console.log(data, "--->")
-        })
+      console.log(data, "--->")
+    })
 
-        socket.on("get_messages_22f9b48a-653a-4d7f-90b1-c10faeb5ebe1", data=>{
-          console.log(data)
-        })
+    socket.on("get_messages_22f9b48a-653a-4d7f-90b1-c10faeb5ebe1", data=>{
+        console.log(data)
       })
+    })
 
-      document.getElementById("send_message_general").addEventListener('click', function(e){
-        e.preventDefault();
-        let value = document.getElementById("chat").value
-        console.log(value);
+    document.getElementById("send_message_general").addEventListener('click', function(e){
+      e.preventDefault();
+      let value = document.getElementById("chat").value
+      console.log(value);
 
-        socket.emit("general_conversation", { recipient_id: "1", sender_id: "32", text: value, token: adebayo, room_id: "1", community_id: "1"}, (res) => {
-          console.log("||res>>>", res);
-        });
+      socket.emit("general_conversation", { recipient_id: "1", sender_id: "32", text: value, token: adebayo, room_id: "1", community_id: "1"}, (res) => {
+        console.log("||res>>>", res);
+      });
 
-        socket.on("general", data => {
-          console.log(data)
-        })
+      socket.on("general", data => {
+        console.log(data)
       })
+    })
 
+    document.getElementById("submit_visitor").addEventListener('click', function(e){
+      e.preventDefault();
+
+      socket.emit("visitor_register", { 
+        api_token: "owkqwau2gzgrfql2qq9no",
+        visitor_name: "ajibola",
+        visitor_email: "ajibolaolayanju@gmail.com",
+        status: 0,
+        random_str: "hello363535"
+      }, (res) => {
+        console.log("||res>>>", res);
+      });
+
+      socket.on("hello363535", data => {
+        console.log(data, "hello363535")
+      })
+    })
     </script>
   </body>
 </html>
