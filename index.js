@@ -31,7 +31,8 @@ io.on("connection", (socket) => {
 		let call = new ApiCalls(data.api_token)
 		let res = await call.postApi(`visitor_info/${data.api_token}`, {
 			api_token: data.api_token,
-			room_id: data.room_id
+			room_id: data.room_id,
+			status: 0
 		})
 		// console.log(res, "re>>>>>")
 
@@ -63,7 +64,7 @@ io.on("connection", (socket) => {
 
 	//send message to agent ot visitor
 	socket.on("send_message", async (data) => {
-		console.log(data)
+		// console.log(data)
 
 		let call = new ApiCalls(data.api_token)
 		let res = await call.postApi(`send_message/${data.api_token}`, {
@@ -73,9 +74,9 @@ io.on("connection", (socket) => {
 			message: data.message || null,
 			room_id: data.room_id
 		})
-		console.log(res, "re>>>>>")
 		if (res.status == "success"){
-			socket.emit(data.room_id, {
+			console.log(res, data.room_id, "re>>>>>")
+			socket.broadcast.emit(data.room_id, {
 				details: res.chat,
 			})
 		}
